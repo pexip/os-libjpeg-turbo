@@ -1,3 +1,9 @@
+libjpeg-turbo (1.1.90+svn733-0ubuntu4.3pexip1) pexip; urgency=low
+
+  * Prepare Pexip packaging
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 24 Dec 2013 21:40:48 +0000
+
 libjpeg-turbo (1.1.90+svn733-0ubuntu4.3) precise-security; urgency=low
 
   * SECURITY UPDATE: information disclosure via uninitialized memory in
