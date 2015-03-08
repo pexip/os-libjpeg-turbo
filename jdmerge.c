@@ -1,10 +1,11 @@
 /*
  * jdmerge.c
  *
+ * This file was part of the Independent JPEG Group's software:
  * Copyright (C) 1994-1996, Thomas G. Lane.
  * Copyright 2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
+ * libjpeg-turbo Modifications:
  * Copyright (C) 2009, 2011, D. R. Commander.
- * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
  * This file contains code for merged upsampling/color conversion.
@@ -38,6 +39,7 @@
 #include "jinclude.h"
 #include "jpeglib.h"
 #include "jsimd.h"
+#include "config.h"
 
 #ifdef UPSAMPLE_MERGING_SUPPORTED
 
@@ -102,6 +104,7 @@ typedef my_upsampler * my_upsample_ptr;
 #define RGB_RED EXT_RGBX_RED
 #define RGB_GREEN EXT_RGBX_GREEN
 #define RGB_BLUE EXT_RGBX_BLUE
+#define RGB_ALPHA 3
 #define RGB_PIXELSIZE EXT_RGBX_PIXELSIZE
 #define h2v1_merged_upsample_internal extrgbx_h2v1_merged_upsample_internal
 #define h2v2_merged_upsample_internal extrgbx_h2v2_merged_upsample_internal
@@ -109,6 +112,7 @@ typedef my_upsampler * my_upsample_ptr;
 #undef RGB_RED
 #undef RGB_GREEN
 #undef RGB_BLUE
+#undef RGB_ALPHA
 #undef RGB_PIXELSIZE
 #undef h2v1_merged_upsample_internal
 #undef h2v2_merged_upsample_internal
@@ -130,6 +134,7 @@ typedef my_upsampler * my_upsample_ptr;
 #define RGB_RED EXT_BGRX_RED
 #define RGB_GREEN EXT_BGRX_GREEN
 #define RGB_BLUE EXT_BGRX_BLUE
+#define RGB_ALPHA 3
 #define RGB_PIXELSIZE EXT_BGRX_PIXELSIZE
 #define h2v1_merged_upsample_internal extbgrx_h2v1_merged_upsample_internal
 #define h2v2_merged_upsample_internal extbgrx_h2v2_merged_upsample_internal
@@ -137,6 +142,7 @@ typedef my_upsampler * my_upsample_ptr;
 #undef RGB_RED
 #undef RGB_GREEN
 #undef RGB_BLUE
+#undef RGB_ALPHA
 #undef RGB_PIXELSIZE
 #undef h2v1_merged_upsample_internal
 #undef h2v2_merged_upsample_internal
@@ -144,6 +150,7 @@ typedef my_upsampler * my_upsample_ptr;
 #define RGB_RED EXT_XBGR_RED
 #define RGB_GREEN EXT_XBGR_GREEN
 #define RGB_BLUE EXT_XBGR_BLUE
+#define RGB_ALPHA 0
 #define RGB_PIXELSIZE EXT_XBGR_PIXELSIZE
 #define h2v1_merged_upsample_internal extxbgr_h2v1_merged_upsample_internal
 #define h2v2_merged_upsample_internal extxbgr_h2v2_merged_upsample_internal
@@ -151,6 +158,7 @@ typedef my_upsampler * my_upsample_ptr;
 #undef RGB_RED
 #undef RGB_GREEN
 #undef RGB_BLUE
+#undef RGB_ALPHA
 #undef RGB_PIXELSIZE
 #undef h2v1_merged_upsample_internal
 #undef h2v2_merged_upsample_internal
@@ -158,6 +166,7 @@ typedef my_upsampler * my_upsample_ptr;
 #define RGB_RED EXT_XRGB_RED
 #define RGB_GREEN EXT_XRGB_GREEN
 #define RGB_BLUE EXT_XRGB_BLUE
+#define RGB_ALPHA 0
 #define RGB_PIXELSIZE EXT_XRGB_PIXELSIZE
 #define h2v1_merged_upsample_internal extxrgb_h2v1_merged_upsample_internal
 #define h2v2_merged_upsample_internal extxrgb_h2v2_merged_upsample_internal
@@ -165,6 +174,7 @@ typedef my_upsampler * my_upsample_ptr;
 #undef RGB_RED
 #undef RGB_GREEN
 #undef RGB_BLUE
+#undef RGB_ALPHA
 #undef RGB_PIXELSIZE
 #undef h2v1_merged_upsample_internal
 #undef h2v2_merged_upsample_internal

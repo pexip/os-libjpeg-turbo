@@ -1,7 +1,9 @@
 USING THE IJG JPEG LIBRARY
 
-Copyright (C) 1994-2010, Thomas G. Lane, Guido Vollbeding, D. R. Commander.
-This file is part of the Independent JPEG Group's software.
+This file was part of the Independent JPEG Group's software:
+Copyright (C) 1994-2011, Thomas G. Lane, Guido Vollbeding.
+Modifications:
+Copyright (C) 2010, D. R. Commander.
 For conditions of distribution and use, see the accompanying README file.
 
 
@@ -850,8 +852,9 @@ int jpeg_quality_scaling (int quality)
 	premise of this routine collapses.  Caveat user.
 
 jpeg_default_qtables (j_compress_ptr cinfo, boolean force_baseline)
-	[libjpeg v7/v8 only] Set default quantization tables with linear
-	q_scale_factor[] values (see below).
+	[libjpeg v7+ API/ABI emulation only]
+	Set default quantization tables with linear q_scale_factor[] values
+	(see below).
 
 jpeg_add_quant_table (j_compress_ptr cinfo, int which_tbl,
 		      const unsigned int *basic_table,
@@ -976,12 +979,13 @@ JQUANT_TBL * quant_tbl_ptrs[NUM_QUANT_TBLS]
 	slot 1 for chrominance.
 
 int q_scale_factor[NUM_QUANT_TBLS]
-	[libjpeg v7+ only] Linear quantization scaling factors (0-100, default
-	100) for use with jpeg_default_qtables().
+	[libjpeg v7+ API/ABI emulation only]
+	Linear quantization scaling factors (0-100, default 100)
+	for use with jpeg_default_qtables().
 	See rdswitch.c and cjpeg.c for an example of usage.
 	Note that the q_scale_factor[] values use "linear" scales, so JPEG
 	quality levels chosen by the user must be converted to these scales
-	using jpeg_quality_scaling().  Here is an example which corresponds to
+	using jpeg_quality_scaling().  Here is an example that corresponds to
 	cjpeg -quality 90,70:
 
 		jpeg_set_defaults(cinfo);
@@ -1012,11 +1016,13 @@ JHUFF_TBL * ac_huff_tbl_ptrs[NUM_HUFF_TBLS]
 	any need to mess with providing your own Huffman tables.
 
 
-[libjpeg v7+ only] The actual dimensions of the JPEG image that will be written
-to the file are given by the following fields.  These are computed from the
-input image dimensions and the compression parameters by jpeg_start_compress().
-You can also call jpeg_calc_jpeg_dimensions() to obtain the values that will
-result from the current parameter settings.
+[libjpeg v7+ API/ABI emulation only]
+The actual dimensions of the JPEG image that will be written to the file are
+given by the following fields.  These are computed from the input image
+dimensions and the compression parameters by jpeg_start_compress().  You can
+also call jpeg_calc_jpeg_dimensions() to obtain the values that will result
+from the current parameter settings.  This can be useful if you are trying
+to pick a scaling ratio that will get close to a desired target size.
 
 JDIMENSION jpeg_width		Actual dimensions of output image.
 JDIMENSION jpeg_height
@@ -1110,7 +1116,8 @@ J_COLOR_SPACE out_color_space
 unsigned int scale_num, scale_denom
 	Scale the image by the fraction scale_num/scale_denom.  Default is
 	1/1, or no scaling.  Currently, the only supported scaling ratios
-	are 1/1, 1/2, 1/4, and 1/8.  (The library design allows for arbitrary
+	are M/8 with all M from 1 to 16, or any reduced fraction thereof (such
+	as 1/2, 3/4, etc.)  (The library design allows for arbitrary
 	scaling ratios but this is not likely to be implemented any time soon.)
 	Smaller scaling ratios permit significantly faster decoding since
 	fewer pixels need be processed and a simpler IDCT method can be used.
@@ -1272,8 +1279,9 @@ jpeg_read_header's guess by setting jpeg_color_space.  jpeg_read_header also
 selects a default output color space based on (its guess of) jpeg_color_space;
 set out_color_space to override this.  Again, you must select a supported
 transformation.  jdcolor.c currently supports
-	YCbCr => GRAYSCALE
 	YCbCr => RGB
+	YCbCr => GRAYSCALE
+	RGB => GRAYSCALE
 	GRAYSCALE => RGB
 	YCCK => CMYK
 as well as the null transforms.  (Since GRAYSCALE=>RGB is provided, an

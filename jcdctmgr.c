@@ -1,11 +1,12 @@
 /*
  * jcdctmgr.c
  *
+ * This file was part of the Independent JPEG Group's software:
  * Copyright (C) 1994-1996, Thomas G. Lane.
+ * libjpeg-turbo Modifications:
  * Copyright (C) 1999-2006, MIYASAKA Masaru.
  * Copyright 2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
  * Copyright (C) 2011 D. R. Commander
- * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
  * This file contains the forward-DCT management logic.
@@ -182,7 +183,7 @@ compute_reciprocal (UINT16 divisor, DCTELEM * dtbl)
     /* fq will be one bit too large to fit in DCTELEM, so adjust */
     fq >>= 1;
     r--;
-  } else if (fr <= (divisor / 2)) { /* fractional part is < 0.5 */
+  } else if (fr <= (divisor / 2U)) { /* fractional part is < 0.5 */
     c++;
   } else { /* fractional part is > 0.5 */
     fq++;
