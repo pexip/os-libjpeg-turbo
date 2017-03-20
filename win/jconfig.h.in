@@ -5,6 +5,7 @@
 #define LIBJPEG_TURBO_VERSION @VERSION@
 #cmakedefine C_ARITH_CODING_SUPPORTED
 #cmakedefine D_ARITH_CODING_SUPPORTED
+#cmakedefine MEM_SRCDST_SUPPORTED
 
 #define HAVE_PROTOTYPES
 #define HAVE_UNSIGNED_CHAR
@@ -32,16 +33,6 @@ typedef short INT16;
 typedef signed int INT32;
 #endif
 #define XMD_H                   /* prevent jmorecfg.h from redefining it */
-
-#ifndef INLINE
-#if defined(__GNUC__)
-#define INLINE __attribute__((always_inline))
-#elif defined(_MSC_VER)
-#define INLINE __forceinline
-#else
-#define INLINE
-#endif
-#endif
 
 #ifdef JPEG_INTERNALS
 

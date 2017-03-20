@@ -1,29 +1,52 @@
-Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
-Name: libjpeg-turbo
-Source: lp:libjpeg-turbo
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: libjpeg-turbo
+Source: https://libjpeg-turbo.svn.sourceforge.net/svnroot/libjpeg-turbo/trunk
 
 Files: *
-Copyright: 1999-2006 MIYASAKA Masaru 
-    2004 Landmark Graphics Corporation
-    2005-2007 Sun Microsystems, Inc.
-    2009 Pierre Ossman for Cendio AB
-    2009-2010 D. R. Commander
-    2010 Thomas G. Lane, Guido Vollbeding
-    2009, Thomas G. Lane, Guido Vollbeding
-    1998, Thomas G. Lane
-    2010 Nokia Corporation
-License:  JPEG
+Copyright: 1991-2010 Thomas G. Lane
+           1991-2011 Guido Vollbeding
+           1999-2006 MIYASAKA Masaru
+           2009-2011 D. R. Commander
+           2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
+           2009-2011 Nokia Corporation and/or its subsidiary(-ies)
+License: BSD-BY-LC-NE
+
+Files: debian/*
+Copyright:
+ 2014      Ondřej Surý <ondrej@debian.org>
+ 2012-2013 Debian TigerVNC Packaging Team <pkg-tigervnc-devel@lists.alioth.debian.org>
+ 2011-2012 Canonical Ltd.
+ 2011-2012 Linaro Inc.
+License: BSD-3
+
+Files: debian/extras/*
+Copyright:
+ 2005 Guido Vollbeding <guido@jpegclub.org>
+License: BSD-BY-LC-NE
+Comment:
+ No license information present in file headers.
  .
+ Assume same license as for Files: * as author of these files
+ has also been involved in development of the rest of the
+ project files.
+
+Files: debian/missing-sources/jquery* doc/html/jquery.js
+Copyright: Copyright 2011, John Resig
+	   Copyright 2011, The Dojo Foundation
+License: Expat
+
+License: BSD-BY-LC-NE
  In plain English:
  .
  1. We don't promise that this software works.  (But if you find any bugs,
-   please let us know!)
+    please let us know!)
  2. You can use this software for whatever you want.  You don't have to pay us.
  3. You may not pretend that you wrote this software.  If you use it in a
-   program, you must acknowledge somewhere in your documentation that
-   you've used the IJG code.
+    program, you must acknowledge somewhere in your documentation that
+    you've used the IJG code.
  .
  In legalese:
+ .
  The authors make NO WARRANTY or representation, either express or implied,
  with respect to this software, its quality, accuracy, merchantability, or
  fitness for a particular purpose.  This software is provided "AS IS", and you,
@@ -59,10 +82,8 @@ License:  JPEG
  commercial products, provided that all warranty or liability claims are
  assumed by the product vendor.
  .
- .
  ansi2knr.c is included in this distribution by permission of L. Peter Deutsch,
- sole proprietor of its copyright holder, Aladdin Enterprises of Menlo Park, CA
- .
+ sole proprietor of its copyright holder, Aladdin Enterprises of Menlo Park, CA.
  ansi2knr.c is NOT covered by the above copyright and conditions, but instead
  by the usual distribution terms of the Free Software Foundation; principally,
  that you must include source code if you redistribute it.  (See the file
@@ -84,28 +105,84 @@ License:  JPEG
  GIF decoders.
  .
  We are required to state that
-    "The Graphics Interchange Format(c) is the Copyright property of
-    CompuServe Incorporated.  GIF(sm) is a Service Mark property of
-    CompuServe Incorporated."
+     "The Graphics Interchange Format(c) is the Copyright property of
+     CompuServe Incorporated.  GIF(sm) is a Service Mark property of
+     CompuServe Incorporated."
+ .
+ The complete text can be found in README, supplied with the source.
+ .
+ libjpeg-turbo is licensed under a non-restrictive, BSD-style license
+ (see README.) The TurboJPEG/OSS wrapper (both C and Java versions) and
+ associated test programs bear a similar license, which is reproduced below:
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ - Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the libjpeg-turbo Project nor the names of its
+   contributors may be used to endorse or promote products derived from this
+   software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS",
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+ .
+ The complete text can be found in README-turbo.txt, supplied with the source.
 
-Files: debian/*
-Copyright: 2010, 2011 Linaro Limited
-License: LGPL-2.1
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Library General Public
- License (LGPL) as published by the Free Software Foundation;
- either version 2 of the License, or (at your option) any later
- version.
+License: BSD-3
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
  .
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Library General Public License for more details.
+ - Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the libjpeg-turbo Project nor the names of its
+   contributors may be used to endorse or promote products derived from this
+   software without specific prior written permission.
  .
- You should have received a copy of the GNU Library General Public License
- along with this library; see the file COPYING.LIB.  If not, write to
- the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- Boston, MA 02110-1301, USA.
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS",
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
  .
- On Debian systems, the complete text of the GNU Library General Public
- License, version 2, can be found in /usr/share/common-licenses/LGPL-2.1.
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.

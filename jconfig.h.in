@@ -12,6 +12,9 @@
 /* Support arithmetic decoding */
 #undef D_ARITH_CODING_SUPPORTED
 
+/* Support in-memory source/destination managers */
+#undef MEM_SRCDST_SUPPORTED
+
 /* Compiler supports function prototypes. */
 #undef HAVE_PROTOTYPES
 
@@ -29,9 +32,6 @@
 
 /* Compiler does not support pointers to unspecified structures. */
 #undef INCOMPLETE_TYPES_BROKEN
-
-/* How to obtain function inlining. */
-#undef INLINE
 
 /* Compiler has <strings.h> rather than standard <string.h>. */
 #undef NEED_BSD_STRINGS

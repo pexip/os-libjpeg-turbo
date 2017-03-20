@@ -3,7 +3,7 @@
  *
  * Copyright 2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
  * Copyright 2009-2011 D. R. Commander
- * 
+ *
  * Based on the x86 SIMD extension for IJG JPEG library,
  * Copyright (C) 1999-2006, MIYASAKA Masaru.
  * For conditions of distribution and use, see copyright notice in jsimdext.inc
@@ -104,7 +104,7 @@ init_simd (void)
   int bufsize = 1024; /* an initial guess for the line buffer size limit */
 #endif
 
-  if (simd_support != ~0)
+  if (simd_support != ~0U)
     return;
 
   simd_support = 0;
@@ -338,6 +338,15 @@ jsimd_can_h2v1_fancy_upsample (void)
 {
   init_simd();
 
+  /* The code is optimised for these values only */
+  if (BITS_IN_JSAMPLE != 8)
+    return 0;
+  if (sizeof(JDIMENSION) != 4)
+    return 0;
+
+  if (simd_support & JSIMD_ARM_NEON)
+    return 1;
+
   return 0;
 }
 
@@ -355,6 +364,9 @@ jsimd_h2v1_fancy_upsample (j_decompress_ptr cinfo,
                            JSAMPARRAY input_data,
                            JSAMPARRAY * output_data_ptr)
 {
+  if (simd_support & JSIMD_ARM_NEON)
+    jsimd_h2v1_fancy_upsample_neon(cinfo->max_v_samp_factor,
+        compptr->downsampled_width, input_data, output_data_ptr);
 }
 
 GLOBAL(int)
