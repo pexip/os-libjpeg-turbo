@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2009-2011 D. R. Commander.  All Rights Reserved.
+ * Copyright (C)2009-2012, 2014 D. R. Commander.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -77,7 +77,7 @@ const int _onlyGray[]={TJPF_GRAY};
 const int _onlyRGB[]={TJPF_RGB};
 
 enum {YUVENCODE=1, YUVDECODE};
-int yuv=0, alloc=0, alpha=0;
+int yuv=0, alloc=0;
 
 int exitStatus=0;
 #define bailout() {exitStatus=-1;  goto bailout;}
@@ -219,7 +219,6 @@ int checkBuf(unsigned char *buf, int w, int h, int pf, int subsamp,
 	bailout:
 	if(retval==0)
 	{
-		printf("\n");
 		for(row=0; row<h; row++)
 		{
 			for(col=0; col<w; col++)
@@ -312,7 +311,6 @@ int checkBufYUV(unsigned char *buf, int w, int h, int subsamp)
 				printf("%.3d ", buf[ypitch*ph + uvpitch*ch + (uvpitch*row+col)]);
 			printf("\n");
 		}
-		printf("\n");
 	}
 
 	return retval;
@@ -405,7 +403,7 @@ void _decompTest(tjhandle handle, unsigned char *jpegBuf,
 	if(yuv==YUVENCODE) return;
 
 	if(yuv==YUVDECODE)
-		printf("JPEG -> YUV %s ... ", subName[subsamp]);
+		printf("JPEG -> YUV %s ... ", subNameLong[subsamp]);
 	else
 	{
 		printf("JPEG -> %s %s ", pixFormatStr[pf],
@@ -475,7 +473,7 @@ void decompTest(tjhandle handle, unsigned char *jpegBuf,
 			sf1);
 
 	bailout:
-	printf("\n");
+	return;
 }
 
 
@@ -502,6 +500,8 @@ void doTest(int w, int h, const int *formats, int nformats, int subsamp,
 		for(i=0; i<2; i++)
 		{
 			int flags=0;
+			if(subsamp==TJSAMP_422 || subsamp==TJSAMP_420 || subsamp==TJSAMP_440)
+				flags|=TJFLAG_FASTUPSAMPLE;
 			if(i==1)
 			{
 				if(yuv==YUVDECODE) goto bailout;
@@ -513,10 +513,15 @@ void doTest(int w, int h, const int *formats, int nformats, int subsamp,
 			decompTest(dhandle, dstBuf, size, w, h, pf, basename, subsamp,
 				flags);
 			if(pf>=TJPF_RGBX && pf<=TJPF_XRGB)
+			{
+				printf("\n");
 				decompTest(dhandle, dstBuf, size, w, h, pf+(TJPF_RGBA-TJPF_RGBX),
 					basename, subsamp, flags);
+			}
+			printf("\n");
 		}
 	}
+	printf("--------------------\n\n");
 
 	bailout:
 	if(chandle) tjDestroy(chandle);
@@ -529,9 +534,9 @@ void doTest(int w, int h, const int *formats, int nformats, int subsamp,
 void bufSizeTest(void)
 {
 	int w, h, i, subsamp;
-	unsigned char *srcBuf=NULL, *jpegBuf=NULL;
+	unsigned char *srcBuf=NULL, *dstBuf=NULL;
 	tjhandle handle=NULL;
-	unsigned long jpegSize=0;
+	unsigned long dstSize=0;
 
 	if((handle=tjInitCompress())==NULL) _throwtj();
 
@@ -546,12 +551,12 @@ void bufSizeTest(void)
 				if(h%100==0) printf("%.4d x %.4d\b\b\b\b\b\b\b\b\b\b\b", w, h);
 				if((srcBuf=(unsigned char *)malloc(w*h*4))==NULL)
 					_throw("Memory allocation failure");
-				if(!alloc)
+				if(!alloc || yuv==YUVENCODE)
 				{
-					if((jpegBuf=(unsigned char *)tjAlloc(tjBufSize(w, h, subsamp)))
-						==NULL)
+					if(yuv==YUVENCODE) dstSize=tjBufSizeYUV(w, h, subsamp);
+					else dstSize=tjBufSize(w, h, subsamp);
+					if((dstBuf=(unsigned char *)tjAlloc(dstSize))==NULL)
 						_throw("Memory allocation failure");
-					jpegSize=tjBufSize(w, h, subsamp);
 				}
 
 				for(i=0; i<w*h*4; i++)
@@ -560,19 +565,27 @@ void bufSizeTest(void)
 					else srcBuf[i]=255;
 				}
 
-				_tj(tjCompress2(handle, srcBuf, w, 0, h, TJPF_BGRX, &jpegBuf,
-					&jpegSize, subsamp, 100, alloc? 0:TJFLAG_NOREALLOC));
+				if(yuv==YUVENCODE)
+				{
+					_tj(tjEncodeYUV2(handle, srcBuf, w, 0, h, TJPF_BGRX, dstBuf, subsamp,
+						0));
+				}
+				else
+				{
+					_tj(tjCompress2(handle, srcBuf, w, 0, h, TJPF_BGRX, &dstBuf,
+						&dstSize, subsamp, 100, alloc? 0:TJFLAG_NOREALLOC));
+				}
 				free(srcBuf);  srcBuf=NULL;
-				tjFree(jpegBuf);  jpegBuf=NULL;
+				tjFree(dstBuf);  dstBuf=NULL;
 
 				if((srcBuf=(unsigned char *)malloc(h*w*4))==NULL)
 					_throw("Memory allocation failure");
-				if(!alloc)
+				if(!alloc || yuv==YUVENCODE)
 				{
-					if((jpegBuf=(unsigned char *)tjAlloc(tjBufSize(h, w, subsamp)))
-						==NULL)
+					if(yuv==YUVENCODE) dstSize=tjBufSizeYUV(h, w, subsamp);
+					else dstSize=tjBufSize(h, w, subsamp);
+					if((dstBuf=(unsigned char *)tjAlloc(dstSize))==NULL)
 						_throw("Memory allocation failure");
-					jpegSize=tjBufSize(h, w, subsamp);
 				}
 
 				for(i=0; i<h*w*4; i++)
@@ -581,10 +594,18 @@ void bufSizeTest(void)
 					else srcBuf[i]=255;
 				}
 
-				_tj(tjCompress2(handle, srcBuf, h, 0, w, TJPF_BGRX, &jpegBuf,
-					&jpegSize, subsamp, 100, alloc? 0:TJFLAG_NOREALLOC));
+				if(yuv==YUVENCODE)
+				{
+					_tj(tjEncodeYUV2(handle, srcBuf, h, 0, w, TJPF_BGRX, dstBuf, subsamp,
+						0));
+				}
+				else
+				{
+					_tj(tjCompress2(handle, srcBuf, h, 0, w, TJPF_BGRX, &dstBuf,
+						&dstSize, subsamp, 100, alloc? 0:TJFLAG_NOREALLOC));
+				}
 				free(srcBuf);  srcBuf=NULL;
-				tjFree(jpegBuf);  jpegBuf=NULL;
+				tjFree(dstBuf);  dstBuf=NULL;
 			}
 		}
 	}
@@ -592,7 +613,7 @@ void bufSizeTest(void)
 
 	bailout:
 	if(srcBuf) free(srcBuf);
-	if(jpegBuf) free(jpegBuf);
+	if(dstBuf) free(dstBuf);
 	if(handle) tjDestroy(handle);
 }
 
@@ -617,21 +638,19 @@ int main(int argc, char *argv[])
 	if(doyuv) {yuv=YUVENCODE;  alloc=0;}
 	doTest(35, 39, _3byteFormats, 2, TJSAMP_444, "test");
 	doTest(39, 41, _4byteFormats, 4, TJSAMP_444, "test");
-	if(doyuv)
-	{
-		doTest(41, 35, _3byteFormats, 2, TJSAMP_422, "test");
-		doTest(35, 39, _4byteFormats, 4, TJSAMP_422, "test");
-		doTest(39, 41, _3byteFormats, 2, TJSAMP_420, "test");
-		doTest(41, 35, _4byteFormats, 4, TJSAMP_420, "test");
-		doTest(35, 39, _3byteFormats, 2, TJSAMP_440, "test");
-		doTest(39, 41, _4byteFormats, 4, TJSAMP_440, "test");
-	}
+	doTest(41, 35, _3byteFormats, 2, TJSAMP_422, "test");
+	doTest(35, 39, _4byteFormats, 4, TJSAMP_422, "test");
+	doTest(39, 41, _3byteFormats, 2, TJSAMP_420, "test");
+	doTest(41, 35, _4byteFormats, 4, TJSAMP_420, "test");
+	doTest(35, 39, _3byteFormats, 2, TJSAMP_440, "test");
+	doTest(39, 41, _4byteFormats, 4, TJSAMP_440, "test");
 	doTest(35, 39, _onlyGray, 1, TJSAMP_GRAY, "test");
 	doTest(39, 41, _3byteFormats, 2, TJSAMP_GRAY, "test");
 	doTest(41, 35, _4byteFormats, 4, TJSAMP_GRAY, "test");
-	if(!doyuv) bufSizeTest();
+	bufSizeTest();
 	if(doyuv)
 	{
+		printf("\n--------------------\n\n");
 		yuv=YUVDECODE;
 		doTest(48, 48, _onlyRGB, 1, TJSAMP_444, "test_yuv0");
 		doTest(35, 39, _onlyRGB, 1, TJSAMP_444, "test_yuv1");

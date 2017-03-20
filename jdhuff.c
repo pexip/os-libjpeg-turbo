@@ -1,9 +1,10 @@
 /*
  * jdhuff.c
  *
+ * This file was part of the Independent JPEG Group's software:
  * Copyright (C) 1991-1997, Thomas G. Lane.
+ * libjpeg-turbo Modifications:
  * Copyright (C) 2009-2011, D. R. Commander.
- * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
  * This file contains Huffman entropy decoding routines.
@@ -758,7 +759,7 @@ decode_mcu (j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
     usefast = 0;
   }
 
-  if (cinfo->src->bytes_in_buffer < BUFSIZE * cinfo->blocks_in_MCU
+  if (cinfo->src->bytes_in_buffer < BUFSIZE * (size_t)cinfo->blocks_in_MCU
     || cinfo->unread_marker != 0)
     usefast = 0;
 
