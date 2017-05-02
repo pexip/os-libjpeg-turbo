@@ -35,30 +35,20 @@ endif
 
 ifeq ($(DEB_HOST_GNU_TYPE),x86_64-linux-gnux32)
 override_dh_auto_configure:
-	mkdir build-jpeg8
-	dh_auto_configure -plibjpeg8 --builddirectory build-jpeg8 -- --without-simd --with-jpeg8
-	dh_auto_configure --remaining-packages -- --without-simd
-else
-override_dh_auto_configure:
-	mkdir build-jpeg8
-	dh_auto_configure -plibjpeg8 --builddirectory build-jpeg8 -- --with-jpeg8
-	dh_auto_configure --remaining-packages
+	dh_auto_configure -- --without-simd
 endif
 
 override_dh_auto_build:
-	dh_auto_build --builddirectory build-jpeg8 -- V=1
 	dh_auto_build -- V=1
 	$(MAKE) -C debian/extra CC=$(CC) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" V=1
 
 override_dh_auto_clean:
 	$(MAKE) -C debian/extra clean
 	if [ -e Makefile ]; then $(MAKE) testclean; fi
-	dh_auto_clean --builddirectory build-jpeg8
 	dh_auto_clean
 	rm -f simd/jsimdcfg.inc
 
 override_dh_auto_install:
-	dh_auto_install --builddirectory build-jpeg8
 	dh_auto_install
 	# Install extra utilities
 	$(MAKE) -C debian/extra install prefix=/usr DESTDIR=$(CURDIR)/debian/tmp
@@ -85,7 +75,6 @@ override_dh_strip:
 	dh_strip -plibjpeg-turbo-progs --dbg-package=libjpeg-turbo-progs-dbg
 	dh_strip -plibjpeg62-turbo --dbg-package=libjpeg62-turbo-dbg
 	dh_strip -plibturbojpeg1 --dbg-package=libturbojpeg1-dbg
-	dh_strip -plibjpeg8 --dbg-package=libjpeg8-dbg
 
 deb_source := $(shell dpkg-parsechangelog | sed -n 's/^Source: //p')
 svn_rev := $(shell dpkg-parsechangelog | sed -rne 's,^Version: .*[+~]svn([0-9]+).*,\1,p')
