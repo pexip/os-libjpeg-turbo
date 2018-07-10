@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2011-2012, 2014 D. R. Commander.  All Rights Reserved.
+ * Copyright (C)2011-2012, 2014-2015 D. R. Commander.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -324,11 +324,11 @@ public class TJExample implements TJCustomFilter {
         tjc.setSubsamp(outSubsamp);
         tjc.setJPEGQuality(outQual);
         if (img != null)
-          jpegBuf = tjc.compress(img, flags);
+          tjc.setSourceImage(img, 0, 0, 0, 0);
         else {
           tjc.setSourceImage(bmpBuf, 0, 0, width, 0, height, TJ.PF_BGRX);
-          jpegBuf = tjc.compress(flags);
         }
+        jpegBuf = tjc.compress(flags);
         jpegSize = tjc.getCompressedSize();
         tjc.close();
 
@@ -351,7 +351,7 @@ public class TJExample implements TJCustomFilter {
   public void customFilter(ShortBuffer coeffBuffer, Rectangle bufferRegion,
                            Rectangle planeRegion, int componentIndex,
                            int transformIndex, TJTransform transform)
-                           throws Exception {
+                           throws TJException {
     for (int i = 0; i < bufferRegion.width * bufferRegion.height; i++) {
       coeffBuffer.put(i, (short)(-coeffBuffer.get(i)));
     }

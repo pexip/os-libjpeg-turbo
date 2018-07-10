@@ -1,2 +1,1 @@
-001_versioned-libjpegturbo.patch
-CVE-2014-9092.patch
+0001-Declare-env-on-MIPS-on-first-use-Courtesy-of-Aurelie.patch
