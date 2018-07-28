@@ -1,3 +1,9 @@
+libjpeg-turbo (1:1.5.1-2pexip1) pexip; urgency=low
+
+  * Migrate to Stretch
+
+ -- John-Mark Bell <jmb@pexip.com>  Sat, 28 Jul 2018 17:57:05 +0100
+
 libjpeg-turbo (1:1.5.1-2) unstable; urgency=medium
 
   * Declare env on MIPS on first use (Courtesy of Aurelien Jarno) (Closes: #841129)
