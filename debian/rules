@@ -9,6 +9,8 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic -ffloat-store
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
 include /usr/share/dpkg/default.mk
 
 CFLAGS ?= $(shell dpkg-buildflags --get CFLAGS)
@@ -59,10 +61,6 @@ override_dh_auto_install:
 	mkdir -p debian/tmp/usr/include/$(DEB_HOST_MULTIARCH)
 	sed -e "s/#\(undef\|define\) HAVE_\(LOCALE\|\(STD\(DEF\|LIB\)\)\)_H 1//g" \
 		jconfig.h > debian/tmp/usr/include/$(DEB_HOST_MULTIARCH)/jconfig.h
-	mkdir -p debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig/
-	sed -e "s/@VERSION@/$(VERSION)/;s/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/" \
-		debian/libjpeg.pc.in \
-		> debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig/libjpeg.pc
 
 override_dh_install:
 	dh_install -X.la -X/usr/share/doc --fail-missing

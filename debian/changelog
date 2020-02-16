@@ -1,3 +1,20 @@
+libjpeg-turbo (1:1.5.2-2) unstable; urgency=medium
+
+  * Drop env declaration patch on mips to fix FTBFS on mips
+  * Add jpeg_simd_cpu_support symbol that exists only on any-i386 archs
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 25 Aug 2017 10:27:48 +0200
+
+libjpeg-turbo (1:1.5.2-1) unstable; urgency=medium
+
+  * New upstream version 1.5.2
+  * Stop using custom libjpeg.pc (Closes: #860219)
+  * Update gbp-dch -> dch section in gbp.conf
+  * Update libjpeg62-turbo symbols
+  * Set DPKG_GENSYMBOLS_CHECK_LEVEL to 4 in d/rules
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 25 Aug 2017 09:16:54 +0200
+
 libjpeg-turbo (1:1.5.1-2pexip1) pexip; urgency=low
 
   * Migrate to Stretch
