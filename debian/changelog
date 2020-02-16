@@ -1,3 +1,9 @@
+libjpeg-turbo (1:1.5.2-2pexip1) pexip; urgency=medium
+
+  * Migrate to Buster
+
+ -- Vincent Sanders <vince@pexip.com>  Sun, 16 Feb 2020 23:38:48 +0000
+
 libjpeg-turbo (1:1.5.2-2) unstable; urgency=medium
 
   * Drop env declaration patch on mips to fix FTBFS on mips
