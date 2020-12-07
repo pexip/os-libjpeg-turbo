@@ -1,3 +1,18 @@
+libjpeg-turbo (1:1.5.2-2+deb10u1pexip1) pexip; urgency=medium
+
+  * New upstream version
+
+ -- Steve McIntyre <steve.mcintyre@pexip.com>  Mon, 07 Dec 2020 15:01:25 +0000
+
+libjpeg-turbo (1:1.5.2-2+deb10u1) buster; urgency=medium
+
+  * CVE-2018-1152  (Closes: #902950)
+  * CVE-2018-14498 (Closes: #924678)
+  * CVE-2019-2201
+  * CVE-2020-13790 (Closes: #962829)
+
+ -- Moritz Mühlenhoff <jmm@debian.org>  Wed, 07 Oct 2020 22:25:43 +0200
+
 libjpeg-turbo (1:1.5.2-2+b1pexip2) pexip; urgency=medium
 
   * Rebuild in buster environment
