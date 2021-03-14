@@ -10,7 +10,7 @@ for i
 do
  case $i in
  -v|--version) echo "exifautotran"; exit 0;;
- -h|--help) 
+ -h|--help)
              cat <<EOF
 exifautotran [list of files]
 

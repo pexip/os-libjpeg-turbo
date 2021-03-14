@@ -1,11 +1,225 @@
-libjpeg-turbo (1:1.5.2-2+deb10u1) buster; urgency=medium
+libjpeg-turbo (1:2.0.6-4) unstable; urgency=medium
 
-  * CVE-2018-1152  (Closes: #902950)
-  * CVE-2018-14498 (Closes: #924678)
-  * CVE-2019-2201
-  * CVE-2020-13790 (Closes: #962829)
+  [ Adrian Bunk ]
+  * debian/patches:
+    + Add 0001-cmake-MATCHES-uses-regex-not-globs.patch. Fix for cmake MATCHES
+      to fix sparc64 FTBFS.
 
- -- Moritz Mühlenhoff <jmm@debian.org>  Wed, 07 Oct 2020 22:25:43 +0200
+  [ Mike Gabriel ]
+  * debian/patches:
+    + Add 1002_jpeg-skip-scanlines-avoid-NULL+0-UBSan-error.patch.
+      jpeg_skip_scanlines(): Avoid NULL + 0 UBSan error. (CVE-2021-0384).
+
+ -- Mike Gabriel <sunweaver@debian.org>  Sun, 14 Mar 2021 15:45:05 +0100
+
+libjpeg-turbo (1:2.0.6-3) unstable; urgency=medium
+
+  [ Adrian Bunk ]
+  * debian/patches:
+    + Add 0001-cmake-MATCHES-uses-regex-not-globs.patch. Fix for cmake MATCHES
+      to fix sparc64 FTBFS
+
+ -- Mike Gabriel <sunweaver@debian.org>  Mon, 01 Mar 2021 10:29:14 +0100
+
+libjpeg-turbo (1:2.0.6-2) unstable; urgency=medium
+
+  [ Adrian Bunk ]
+  * debian/rules:
+    + Fix test result comparison for several architectures with 2.0.6.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Tue, 23 Feb 2021 12:15:18 +0100
+
+libjpeg-turbo (1:2.0.6-1) unstable; urgency=medium
+
+  [ Vagrant Cascadian ]
+  * debian/extra/Makefile:
+    + Do not pass user and group to install command.
+  * debian/control:
+    + Re-add Rules-Requires-Root: field. (Closes: #978998).
+
+  [ Mike Gabriel ]
+  * New upstream version 2.0.6
+  * debian/patches:
+    + Rebase 2001_dont-set-RPATH.patch.
+    + Add Forwarded: field to 2001_dont-set-RPATH.patch's header. The patch is
+      Debian-specific.
+  * debian/upstream/signing-key.asc:
+    + Add file (GnuPG key: 0x7EC2DBB6F4DBF434).
+  * debian/watch:
+    + Add pgpsigurlmangle option.
+    + Switch to format version 4.
+  * debian/copyright:
+    + Update auto-generated copyright.in file.
+    + Make copyright attributions more precise, update for this upstream
+      release.
+  * debian/missing-sources:
+    + Update jquery.js from 1.7.1 to 3.4.1 (same version as used in pre-built
+      doxygen docs).
+  * debian/source/lintian-overrides:
+    + Silence lintian that rightfully complains about pre-built doxygen docs
+      being shipped in the src:pkg. Amending this is on the todo list.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Mon, 15 Feb 2021 13:39:05 +0100
+
+libjpeg-turbo (1:2.0.5-2) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * debian/copyright:
+    + Use spaces rather than tabs to start continuation lines.
+  * Set upstream metadata fields: Archive, Bug-Database, Bug-Submit, Repository,
+    Repository-Browse.
+
+  [ Vagrant Cascadian ]
+  * debian/patches:
+    + Add 1001-use-utc-timestamp.patch. Use UTC timestamp to enable reproducible
+      build. (Closes: #968627).
+
+  [ Helmut Grohne ]
+  * debian/control:
+    + Convert libjpeg-dev to Architecture: any. (Closes: #897646).
+
+  [ Mike Gabriel ]
+  * debian/control:
+    + Bump Standards-Version: to 4.5.1. No changes needed.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Fri, 01 Jan 2021 21:43:20 +0100
+
+libjpeg-turbo (1:2.0.5-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix incorrect FLOATTEST guesses causing test failures.
+    (Closes: #966421)
+  * Add -ffloat-store only on m68k.
+  * Add the missing epochs to symbols files. (Closes: #966409)
+  * Remove non-working Rules-Requires-Root.
+
+  [ Mike Gabriel ]
+  * lintian: Renamed tag: shlib-calls-exit -> exit-in-shared-library.
+  * debian/rules: Drop explicit setting of DEB_LDFLAGS_MAINT_APPEND.
+
+ -- Adrian Bunk <bunk@debian.org>  Fri, 31 Jul 2020 17:51:51 +0300
+
+libjpeg-turbo (1:2.0.5-1) unstable; urgency=medium
+
+  * Upload to unstable.
+
+  * New upstream release.
+  * debian/control:
+    + Bump DH compat level to version 13.
+    + Bump Standards-Version: to 4.5.0. No changes needed.
+  * debian/copyright:
+    + Add auto-generated copyright.in file.
+    + Update copyright attributions.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Sat, 04 Jul 2020 23:57:20 +0200
+
+libjpeg-turbo (1:2.0.4-1~exp1) experimental; urgency=medium
+
+  * New upstream release.
+  * debian/patches:
+    + Drop 0001_CVE-2019-2201-followup.patch. Applied upstream.
+  * debian/control:
+    + Add RulesRequiresRoot: field and set it to 'no'.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Tue, 14 Jan 2020 08:15:09 +0100
+
+libjpeg-turbo (1:2.0.3-1~exp1) experimental; urgency=medium
+
+  * New upstream release.
+    - CVE-2019-2201: TurboJPEG: Properly handle gigapixel images Prevent
+      several integer overflow issues and subsequent segfaults that occurred
+      when attempting to compress or decompress gigapixel images with the
+      TurboJPEG API. 64-bit tjbench: Fix signed int overflow/segfault.
+  * debian/patches:
+    + Cherry-pick 0001_CVE-2019-2201-followup.patch from upstream.
+      64-bit tjbench: Fix signed int overflow/segfault.
+      Following-up on the fix for CVE-2019-2201.
+  * debian/control:
+    + Bump Standards-Version: to 4.4.1. No changes needed.
+  * debian/rules:
+    + Re-add uscan-based get-orig-source target (to ease my day for upstream
+      tarball retrieval).
+
+ -- Mike Gabriel <sunweaver@debian.org>  Thu, 19 Dec 2019 13:48:20 +0100
+
+libjpeg-turbo (1:2.0.2-1~exp4) experimental; urgency=medium
+
+  * debian/rules:
+    + Fix SIMD build option (we got it the wrong way 'round in the previous
+      upload.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Tue, 27 Aug 2019 14:27:45 +0200
+
+libjpeg-turbo (1:2.0.2-1~exp3) experimental; urgency=medium
+
+  * debian/rules:
+    + Explicitly set CMAKE_INSTALL_MANDIR, fixes FTBFS for kfreebsd-<arch>
+      builds.
+    + Migrate DISABLE_SIMD variable to values that cmake can understand.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Tue, 27 Aug 2019 08:31:12 +0200
+
+libjpeg-turbo (1:2.0.2-1~exp2) experimental; urgency=medium
+
+  * debian/copyright:
+    + Update Source: field. Upstream has moved to Github.
+  * debian/rules:
+    + cmake builds in obj-<DEB_HOST_GNU_TYPE>, not obj-<DEB_HOST_MULTIARCH>.
+      This fixes FTBFS on 32-bit platforms.
+  * debian/libjpeg62-turbo.symbols:
+    + Update symbols for i386 builds, i.e. drop jpeg_simd_cpu_support.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Thu, 22 Aug 2019 16:32:54 +0200
+
+libjpeg-turbo (1:2.0.2-1~exp1) experimental; urgency=medium
+
+  * New upstream release.
+  * debian/patches:
+    + Add 2001_dont-set-RPATH.patch. Don't add an rpath to the progs built
+      with this library.
+  * debian/extra:
+    + White-space cleanup.
+  * debian/control:
+    + Update Vcs-*: URLs. Packaging Git has been moved to salsa.debian.org.
+    + Add B-D: cmake (>= 2.8.12).
+    + Bump Standards-Version: to 4.4.0. No changes needed.
+    + Update Homepage: field with https URL.
+  * debian/{compat,control}:
+    + Use debhelper-compat notation. Bump to DH compat level version 12.
+  * debian/rules:
+    + Since switch to cmake build system, jconfig.h needs to be picked from
+      another build time location.
+    + Move --fail-missing option from dh_install to dh_missing override.
+    + Drop doc files from debian/tmp/ after dh_auto_install.
+    + Set CMAKE_INSTALL_LIBDIR explicitly in dh_auto_configure.
+    + Drop --parallel DHFLAG. It's default since DH compat level 10.
+    + Drop dbgsym-migration options from dh call.
+    + Drop "--with autoreconf" DH option. It has been the default since DH
+      compat level 10.
+  * debian/*.symbols:
+    + Update .symbols files for this upstream release.
+    + Add Build-Depends-Package: meta data field.
+  * debian/libjpeg62-turbo-dev.docs:
+    + Add several more documentation files.
+  * debian/libjpeg-turbo-progs.lintian-overrides:
+    + Drop file. Override not needed anymore (binary-without-manpage
+      usr/bin/tjbench).
+  * debian/libturbojpeg0.lintian-overrides:
+    + Update SOVERSION in override.
+  * debian/libjpeg62-turbo.lintian-overrides:
+    + Add explanation to package-name-doesnt-match-sonames override.
+    + Add shlib-calls-exit override.
+  * debian/copyright:
+    + Update Format: field with https URL.
+    + Fix path name.
+  * debian/libjpeg62-turbo-dev.examples:
+    + Add an example file.
+  * debian/changelog:
+    + White-space cleanup.
+  * debian/tjbench.1:
+    + White-space cleanup.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Wed, 21 Aug 2019 15:58:25 +0200
 
 libjpeg-turbo (1:1.5.2-2) unstable; urgency=medium
 
@@ -100,7 +314,7 @@ libjpeg-turbo (1:1.4.0-5) experimental; urgency=medium
     functions in mips(el) SIMD and thus we can enable SIMD on mips(el)
     See https://sourceforge.net/p/libjpeg-turbo/bugs/83/ for a long
     version.
-  
+
  -- Ondřej Surý <ondrej@debian.org>  Wed, 21 Jan 2015 17:13:23 +0100
 
 libjpeg-turbo (1:1.4.0-4) experimental; urgency=medium
