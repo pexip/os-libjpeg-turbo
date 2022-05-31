@@ -1,5 +1,6 @@
 /*
- * Copyright (C)2011-2013 D. R. Commander.  All Rights Reserved.
+ * Copyright (C)2011-2013, 2017-2018, 2020 D. R. Commander.
+ *                                         All Rights Reserved.
  * Copyright (C)2015 Viktor Szathmáry.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +35,7 @@ package org.libjpegturbo.turbojpeg;
  */
 public final class TJ {
 
+  private TJ() {}
 
   /**
    * The number of chrominance subsampling options
@@ -90,10 +92,10 @@ public final class TJ {
    */
   public static int getMCUWidth(int subsamp) {
     checkSubsampling(subsamp);
-    return mcuWidth[subsamp];
+    return MCU_WIDTH[subsamp];
   }
 
-  private static final int[] mcuWidth = {
+  private static final int[] MCU_WIDTH = {
     8, 16, 16, 8, 8, 32
   };
 
@@ -110,10 +112,10 @@ public final class TJ {
    */
   public static int getMCUHeight(int subsamp) {
     checkSubsampling(subsamp);
-    return mcuHeight[subsamp];
+    return MCU_HEIGHT[subsamp];
   }
 
-  private static final int[] mcuHeight = {
+  private static final int[] MCU_HEIGHT = {
     8, 8, 16, 8, 16, 8
   };
 
@@ -218,10 +220,10 @@ public final class TJ {
    */
   public static int getPixelSize(int pixelFormat) {
     checkPixelFormat(pixelFormat);
-    return pixelSize[pixelFormat];
+    return PIXEL_SIZE[pixelFormat];
   }
 
-  private static final int[] pixelSize = {
+  private static final int[] PIXEL_SIZE = {
     3, 3, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4
   };
 
@@ -235,15 +237,16 @@ public final class TJ {
    *
    * @param pixelFormat the pixel format (one of <code>PF_*</code>)
    *
-   * @return the red offset for the given pixel format.
+   * @return the red offset for the given pixel format, or -1 if the pixel
+   * format does not have a red component.
    */
   public static int getRedOffset(int pixelFormat) {
     checkPixelFormat(pixelFormat);
-    return redOffset[pixelFormat];
+    return RED_OFFSET[pixelFormat];
   }
 
-  private static final int[] redOffset = {
-    0, 2, 0, 2, 3, 1, 0, 0, 2, 3, 1, -1
+  private static final int[] RED_OFFSET = {
+    0, 2, 0, 2, 3, 1, -1, 0, 2, 3, 1, -1
   };
 
 
@@ -256,15 +259,16 @@ public final class TJ {
    *
    * @param pixelFormat the pixel format (one of <code>PF_*</code>)
    *
-   * @return the green offset for the given pixel format.
+   * @return the green offset for the given pixel format, or -1 if the pixel
+   * format does not have a green component.
    */
   public static int getGreenOffset(int pixelFormat) {
     checkPixelFormat(pixelFormat);
-    return greenOffset[pixelFormat];
+    return GREEN_OFFSET[pixelFormat];
   }
 
-  private static final int[] greenOffset = {
-    1, 1, 1, 1, 2, 2, 0, 1, 1, 2, 2, -1
+  private static final int[] GREEN_OFFSET = {
+    1, 1, 1, 1, 2, 2, -1, 1, 1, 2, 2, -1
   };
 
 
@@ -277,15 +281,38 @@ public final class TJ {
    *
    * @param pixelFormat the pixel format (one of <code>PF_*</code>)
    *
-   * @return the blue offset for the given pixel format.
+   * @return the blue offset for the given pixel format, or -1 if the pixel
+   * format does not have a blue component.
    */
   public static int getBlueOffset(int pixelFormat) {
     checkPixelFormat(pixelFormat);
-    return blueOffset[pixelFormat];
+    return BLUE_OFFSET[pixelFormat];
   }
 
-  private static final int[] blueOffset = {
-    2, 0, 2, 0, 1, 3, 0, 2, 0, 1, 3, -1
+  private static final int[] BLUE_OFFSET = {
+    2, 0, 2, 0, 1, 3, -1, 2, 0, 1, 3, -1
+  };
+
+
+  /**
+   * For the given pixel format, returns the number of bytes that the alpha
+   * component is offset from the start of the pixel.  For instance, if a pixel
+   * of format <code>TJ.PF_BGRA</code> is stored in <code>char pixel[]</code>,
+   * then the alpha component will be
+   * <code>pixel[TJ.getAlphaOffset(TJ.PF_BGRA)]</code>.
+   *
+   * @param pixelFormat the pixel format (one of <code>PF_*</code>)
+   *
+   * @return the alpha offset for the given pixel format, or -1 if the pixel
+   * format does not have a alpha component.
+   */
+  public static int getAlphaOffset(int pixelFormat) {
+    checkPixelFormat(pixelFormat);
+    return ALPHA_OFFSET[pixelFormat];
+  }
+
+  private static final int[] ALPHA_OFFSET = {
+    -1, -1, -1, -1, -1, -1, -1, 3, 3, 0, 0, -1
   };
 
 
@@ -306,16 +333,18 @@ public final class TJ {
    * mathematical transformation of RGB designed solely for storage and
    * transmission.  YCbCr images must be converted to RGB before they can
    * actually be displayed.  In the YCbCr colorspace, the Y (luminance)
-   * component represents the black & white portion of the original image, and
-   * the Cb and Cr (chrominance) components represent the color portion of the
-   * original image.  Originally, the analog equivalent of this transformation
-   * allowed the same signal to drive both black & white and color televisions,
-   * but JPEG images use YCbCr primarily because it allows the color data to be
-   * optionally subsampled for the purposes of reducing bandwidth or disk
-   * space.  YCbCr is the most common JPEG colorspace, and YCbCr JPEG images
-   * can be compressed from and decompressed to any of the extended RGB pixel
-   * formats or grayscale, or they can be decompressed to YUV planar images.
+   * component represents the black &amp; white portion of the original image,
+   * and the Cb and Cr (chrominance) components represent the color portion of
+   * the original image.  Originally, the analog equivalent of this
+   * transformation allowed the same signal to drive both black &amp; white and
+   * color televisions, but JPEG images use YCbCr primarily because it allows
+   * the color data to be optionally subsampled for the purposes of reducing
+   * bandwidth or disk space.  YCbCr is the most common JPEG colorspace, and
+   * YCbCr JPEG images can be compressed from and decompressed to any of the
+   * extended RGB pixel formats or grayscale, or they can be decompressed to
+   * YUV planar images.
    */
+  @SuppressWarnings("checkstyle:ConstantName")
   public static final int CS_YCbCr = 1;
   /**
    * Grayscale colorspace.  The JPEG image retains only the luminance data (Y
@@ -348,16 +377,20 @@ public final class TJ {
    * The uncompressed source/destination image is stored in bottom-up (Windows,
    * OpenGL) order, not top-down (X11) order.
    */
-  public static final int FLAG_BOTTOMUP     = 2;
+  public static final int FLAG_BOTTOMUP      = 2;
 
+  @SuppressWarnings("checkstyle:JavadocVariable")
   @Deprecated
-  public static final int FLAG_FORCEMMX     = 8;
+  public static final int FLAG_FORCEMMX      = 8;
+  @SuppressWarnings("checkstyle:JavadocVariable")
   @Deprecated
-  public static final int FLAG_FORCESSE     = 16;
+  public static final int FLAG_FORCESSE      = 16;
+  @SuppressWarnings("checkstyle:JavadocVariable")
   @Deprecated
-  public static final int FLAG_FORCESSE2    = 32;
+  public static final int FLAG_FORCESSE2     = 32;
+  @SuppressWarnings("checkstyle:JavadocVariable")
   @Deprecated
-  public static final int FLAG_FORCESSE3    = 128;
+  public static final int FLAG_FORCESSE3     = 128;
 
   /**
    * When decompressing an image that was compressed using chrominance
@@ -366,7 +399,7 @@ public final class TJ {
    * creates a smooth transition between neighboring chrominance components in
    * order to reduce upsampling artifacts in the decompressed image.
    */
-  public static final int FLAG_FASTUPSAMPLE = 256;
+  public static final int FLAG_FASTUPSAMPLE  = 256;
   /**
    * Use the fastest DCT/IDCT algorithm available in the underlying codec.  The
    * default if this flag is not specified is implementation-specific.  For
@@ -375,7 +408,7 @@ public final class TJ {
    * only a very slight effect on accuracy, but it uses the accurate algorithm
    * when decompressing, because this has been shown to have a larger effect.
    */
-  public static final int FLAG_FASTDCT      =  2048;
+  public static final int FLAG_FASTDCT       = 2048;
   /**
    * Use the most accurate DCT/IDCT algorithm available in the underlying
    * codec.  The default if this flag is not specified is
@@ -385,7 +418,46 @@ public final class TJ {
    * but it uses the accurate algorithm when decompressing, because this has
    * been shown to have a larger effect.
    */
-  public static final int FLAG_ACCURATEDCT  =  4096;
+  public static final int FLAG_ACCURATEDCT   = 4096;
+  /**
+   * Immediately discontinue the current compression/decompression/transform
+   * operation if the underlying codec throws a warning (non-fatal error).  The
+   * default behavior is to allow the operation to complete unless a fatal
+   * error is encountered.
+   * <p>
+   * NOTE: due to the design of the TurboJPEG Java API, only certain methods
+   * (specifically, {@link TJDecompressor TJDecompressor.decompress*()} methods
+   * with a void return type) will complete and leave the output image in a
+   * fully recoverable state after a non-fatal error occurs.
+   */
+  public static final int FLAG_STOPONWARNING = 8192;
+  /**
+   * Use progressive entropy coding in JPEG images generated by compression and
+   * transform operations.  Progressive entropy coding will generally improve
+   * compression relative to baseline entropy coding (the default), but it will
+   * reduce compression and decompression performance considerably.
+   */
+  public static final int FLAG_PROGRESSIVE   = 16384;
+
+
+  /**
+   * The number of error codes
+   */
+  public static final int NUMERR = 2;
+  /**
+   * The error was non-fatal and recoverable, but the image may still be
+   * corrupt.
+   * <p>
+   * NOTE: due to the design of the TurboJPEG Java API, only certain methods
+   * (specifically, {@link TJDecompressor TJDecompressor.decompress*()} methods
+   * with a void return type) will complete and leave the output image in a
+   * fully recoverable state after a non-fatal error occurs.
+   */
+  public static final int ERR_WARNING = 0;
+  /**
+   * The error was fatal and non-recoverable.
+   */
+  public static final int ERR_FATAL = 1;
 
 
   /**
@@ -427,6 +499,7 @@ public final class TJ {
   /**
    * @deprecated Use {@link #bufSizeYUV(int, int, int, int)} instead.
    */
+  @SuppressWarnings("checkstyle:JavadocMethod")
   @Deprecated
   public static native int bufSizeYUV(int width, int height, int subsamp);
 
