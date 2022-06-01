@@ -1,4 +1,4 @@
-CVE-2018-1152.patch
-CVE-2018-14498.patch
-CVE-2019-2201.patch
-CVE-2020-13790.patch
+1001-use-utc-timestamp.patch
+2001_dont-set-RPATH.patch
+0001-cmake-MATCHES-uses-regex-not-globs.patch
+1002_jpeg-skip-scanlines-avoid-NULL+0-UBSan-error.patch

@@ -1,5 +1,5 @@
-INSTALL = install -m755 -o root -g root
-INSTALLDIR = install -m755 -o root -g root -d
+INSTALL = install -m755
+INSTALLDIR = install -m755 -d
 DESTDIR =
 prefix  = /usr/local
 bindir  = $(prefix)/bin
@@ -12,8 +12,8 @@ jpegexiforient: jpegexiforient.c
 clean:
 	-rm -f jpegexiforient
 install:
-	$(INSTALLDIR) $(DESTDIR)$(bindir) 
-	$(INSTALLDIR) $(DESTDIR)$(mandir) 
+	$(INSTALLDIR) $(DESTDIR)$(bindir)
+	$(INSTALLDIR) $(DESTDIR)$(mandir)
 	$(INSTALL) jpegexiforient    $(DESTDIR)$(bindir)
 	$(INSTALL) jpegexiforient.1  $(DESTDIR)$(mandir)
 	$(INSTALL) exifautotran      $(DESTDIR)$(bindir)

@@ -1,17 +1,25 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
+NULL =
+
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+include /usr/share/dpkg/default.mk
+
+ifneq (,$(filter $(DEB_HOST_ARCH), m68k))
+  FLOAT_STORE=-ffloat-store
+endif
+ifneq (,$(filter $(DEB_HOST_ARCH), ia64 riscv64 s390x))
+  FLOATTEST=-DFLOATTEST=fp-contract
+endif
+
 # To enable all, uncomment following line
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic -ffloat-store
-export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic $(FLOAT_STORE)
 
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
-
-include /usr/share/dpkg/default.mk
 
 CFLAGS ?= $(shell dpkg-buildflags --get CFLAGS)
 CPPFLAGS ?= $(shell dpkg-buildflags --get CPPFLAGS)
@@ -29,16 +37,20 @@ endif
 SIMD_BROKEN_ARCHS = x32
 
 ifeq (,$(filter $(DEB_HOST_ARCH), $(SIMD_BROKEN_ARCHS)))
-  DISABLE_SIMD=
+  DISABLE_SIMD=-DWITH_SIMD=1
 else
-  DISABLE_SIMD=--without-simd
+  DISABLE_SIMD=-DWITH_SIMD=0
 endif
 
 %:
-	dh $@ --parallel --with autoreconf -O--dbgsym-migration='libjpeg-turbo-progs-dbg (<< 1.5.0-1~), libjpeg62-turbo-dbg (<< 1.5.0-1~), libturbojpeg0-dbg (<< 1.5.0-1~)'
+	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- --with-build-date=$(DEB_VERSION) $(DISABLE_SIMD)
+	dh_auto_configure -- --with-build-date=$(DEB_VERSION) \
+	                     $(DISABLE_SIMD) $(FLOATTEST) \
+	                     -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
+	                     -DCMAKE_INSTALL_MANDIR=/usr/share/man/
+	                     $(NULL)
 
 override_dh_auto_build:
 	dh_auto_build -- V=1
@@ -52,6 +64,8 @@ override_dh_auto_clean:
 
 override_dh_auto_install:
 	dh_auto_install
+	# drop documentation files (installed via dh_installdocs)
+	rm -Rfv debian/tmp/usr/share/doc/
 	# Install extra utilities
 	$(MAKE) -C debian/extra install prefix=/usr DESTDIR=$(CURDIR)/debian/tmp
 	# Install manual page for tjbench.1
@@ -60,10 +74,13 @@ override_dh_auto_install:
 	rm -f debian/tmp/usr/include/jconfig.h
 	mkdir -p debian/tmp/usr/include/$(DEB_HOST_MULTIARCH)
 	sed -e "s/#\(undef\|define\) HAVE_\(LOCALE\|\(STD\(DEF\|LIB\)\)\)_H 1//g" \
-		jconfig.h > debian/tmp/usr/include/$(DEB_HOST_MULTIARCH)/jconfig.h
+		obj-$(DEB_HOST_GNU_TYPE)/jconfig.h > debian/tmp/usr/include/$(DEB_HOST_MULTIARCH)/jconfig.h
 
 override_dh_install:
-	dh_install -X.la -X/usr/share/doc --fail-missing
+	dh_install -X.la -X/usr/share/doc
+
+override_dh_missing:
+	dh_missing --fail-missing
 
 override_dh_installchangelogs:
 	dh_installchangelogs -plibjpeg62-turbo-dev change.log
