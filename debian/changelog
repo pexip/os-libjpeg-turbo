@@ -1,3 +1,9 @@
+libjpeg-turbo (1:2.0.6-4pexip2) pexip-bullseye; urgency=medium
+
+  * Main bullseye build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Fri, 24 Jun 2022 13:55:51 +0100
+
 libjpeg-turbo (1:2.0.6-4pexip1) pexip; urgency=medium
 
   * Initial bullseye build
