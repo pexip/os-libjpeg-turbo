@@ -4,7 +4,7 @@ Forwarded: <not-needed> (Debian specific)
 
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -191,10 +191,6 @@
+@@ -245,10 +245,6 @@
  report_option(ENABLE_SHARED "Shared libraries")
  report_option(ENABLE_STATIC "Static libraries")
  
