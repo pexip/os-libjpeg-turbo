@@ -144,10 +144,10 @@ configure_file(input: 'jconfigint.h.in',
   format: 'cmake@',
   configuration: cdata)
 
-configure_file(input: 'jversion.h.in',
-  output: 'jversion.h',
-  format: 'cmake@',
-  configuration: cdata)
+#configure_file(input: 'jversion.h.in',
+#  output: 'jversion.h',
+#  format: 'cmake@',
+#  configuration: cdata)
 
 install_headers('jmorecfg.h', 'jerror.h', 'jpeglib.h', jconfig_h)
 
