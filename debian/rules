@@ -43,11 +43,11 @@ else
 endif
 
 %:
-	dh $@
+	dh $@ --with javahelper
 
 override_dh_auto_configure:
-	dh_auto_configure -- --with-build-date=$(DEB_VERSION) \
-	                     $(DISABLE_SIMD) $(FLOATTEST) \
+	dh_auto_configure -- $(DISABLE_SIMD) $(FLOATTEST) \
+	                     -DWITH_JAVA=1 \
 	                     -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
 	                     -DCMAKE_INSTALL_MANDIR=/usr/share/man/
 	                     $(NULL)
@@ -62,7 +62,7 @@ override_dh_auto_clean:
 	dh_auto_clean
 	rm -f simd/jsimdcfg.inc
 
-override_dh_auto_install:
+override_dh_auto_install: debian/tjbench.1
 	dh_auto_install
 	# drop documentation files (installed via dh_installdocs)
 	rm -Rfv debian/tmp/usr/share/doc/
@@ -85,3 +85,17 @@ override_dh_missing:
 override_dh_installchangelogs:
 	dh_installchangelogs -plibjpeg62-turbo-dev change.log
 	dh_installchangelogs -Nlibjpeg62-turbo-dev
+
+# See debhelper:
+DEFAULT_BUILD_DIRECTORY = obj-$(DEB_HOST_GNU_TYPE)
+
+debian/tjbench.1: debian/tjbench.1.in
+	PATH=$(CURDIR)/$(DEFAULT_BUILD_DIRECTORY) \
+		/usr/bin/help2man --no-info --include=$< --output=$@ \
+		--name="benchmark the performance of libjpeg-turbo" \
+		--version-string=$(DEB_VERSION_UPSTREAM) `basename $@ .1`
+	# next line may break in the future, but tidy output a bit:
+	sed -z -i -e 's/USAGE: tjbench\n.IP/.SH USAGE\n.IP\ntjbench/g' $@
+
+get-orig-source:
+	uscan --noconf --force-download --rename --download-current-version --destdir=..
