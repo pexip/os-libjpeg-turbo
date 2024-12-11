@@ -1,0 +1,337 @@
+From a333c36ff0a887f4b498a5bf7ce3a51bfc93c27d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?H=C3=A5vard=20Graff?= <havard.graff@gmail.com>
+Date: Fri, 8 Sep 2023 11:20:53 +0200
+Subject: [PATCH] Add meson build system
+
+From meson wrap:
+patch_filename = libjpeg-turbo_2.1.3-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/libjpeg-turbo_2.1.3-1/get_patch
+patch_hash = 07ddf733e26dee0117850acebce31ea074c8795572138bbe55912694cf932545
+---
+ LICENSE.build     |  19 +++++
+ meson.build       | 179 ++++++++++++++++++++++++++++++++++++++++++++++
+ meson_options.txt |   2 +
+ simd/meson.build  |  90 +++++++++++++++++++++++
+ 4 files changed, 290 insertions(+)
+ create mode 100644 LICENSE.build
+ create mode 100644 meson.build
+ create mode 100644 meson_options.txt
+ create mode 100644 simd/meson.build
+
+diff --git a/LICENSE.build b/LICENSE.build
+new file mode 100644
+index 0000000..b59833d
+--- /dev/null
++++ b/LICENSE.build
+@@ -0,0 +1,19 @@
++Copyright (c) 2021 The Meson development team
++
++Permission is hereby granted, free of charge, to any person obtaining a copy
++of this software and associated documentation files (the "Software"), to deal
++in the Software without restriction, including without limitation the rights
++to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++copies of the Software, and to permit persons to whom the Software is
++furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice shall be included in all
++copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++SOFTWARE.
+diff --git a/meson.build b/meson.build
+new file mode 100644
+index 0000000..142511c
+--- /dev/null
++++ b/meson.build
+@@ -0,0 +1,179 @@
++project('libjpeg-turbo', 'c',
++  version : '2.1.3',
++  license : 'bsd-like',
++  meson_version : '>= 0.55.0')
++
++pkg = import('pkgconfig')
++python = find_program('python3')
++
++cc = meson.get_compiler('c')
++host_system = host_machine.system()
++host_cpu = host_machine.cpu_family()
++
++cdata = configuration_data()
++cdata.set('CMAKE_PROJECT_NAME', meson.project_name())
++cdata.set('VERSION', meson.project_version())
++cdata.set('COPYRIGHT_YEAR', '1991-2022')
++
++jpeg_lib_version = 80
++so_major = jpeg_lib_version / 10
++so_age = 2
++so_minor = 2
++so_version = '@0@.@1@.@2@'.format(so_major, so_age, so_minor)
++vs_defs = 'win/jpeg8.def'
++
++version_arr = meson.project_version().split('.')
++version_major = version_arr[0]
++version_minor = version_arr[1]
++version_revision = version_arr[2]
++
++# Add padding to build an integer: 2.1.0 -> 2001000
++if version_major.to_int() < 10
++  version_major += '00'
++elif version_major.to_int() < 100
++  version_major += '0'
++endif
++
++if version_minor.to_int() < 10
++  version_minor += '00'
++elif version_minor.to_int() < 100
++  version_minor += '0'
++endif
++
++cdata.set('JPEG_LIB_VERSION', jpeg_lib_version)
++cdata.set('LIBJPEG_TURBO_VERSION_NUMBER', version_major + version_minor + version_revision)
++
++cdata.set('BITS_IN_JSAMPLE', '8')
++
++cdata.set('C_ARITH_CODING_SUPPORTED', true)
++cdata.set('D_ARITH_CODING_SUPPORTED', true)
++cdata.set('MEM_SRCDST_SUPPORTED', true)
++
++check_headers = ['local.h', 'stddef.h', 'stdlib.h', 'sys/types.h']
++if cc.get_id() == 'msvc'
++  check_headers += 'intrin.h'
++endif
++
++foreach header : check_headers
++  have_header = cc.has_header(header)
++  cdata.set('HAVE_' + header.underscorify().to_upper(), have_header)
++  cdata.set('NEED_' + header.underscorify().to_upper(), have_header)
++endforeach
++
++has_memset = cc.has_header_symbol('string.h', 'memset')
++has_memcpy = cc.has_header_symbol('string.h', 'memcpy')
++cdata.set('NEED_BSD_STRINGS', not has_memset or not has_memcpy)
++
++size_t = cc.sizeof('size_t')
++unsigned_long = cc.sizeof('unsigned long')
++cdata.set('SIZE_T', size_t)
++cdata.set('HAVE_UNSIGNED_CHAR', cc.sizeof('unsigned char') != -1)
++cdata.set('HAVE_UNSIGNED_SHORT', cc.sizeof('unsigned short') != -1)
++if size_t == unsigned_long
++  cdata.set('HAVE_BUILTIN_CTZL', cc.has_function('__builtin_ctzl'))
++endif
++
++code = 'int main(void) { typedef struct undefined_structure *undef_struct_ptr;  undef_struct_ptr ptr = 0;  return ptr != 0; }'
++cdata.set('INCOMPLETE_TYPES_BROKEN', not cc.links(code))
++
++if meson.can_run_host_binaries()
++  code = '''
++      #include <stdio.h>
++      #include <stdlib.h>
++      int is_shifting_signed (long arg) {
++        long res = arg >> 4;
++        if (res == -0x7F7E80CL)
++          return 1; /* right shift is signed */
++        /* see if unsigned-shift hack will fix it. */
++        /* we can't just test exact value since it depends on width of long... */
++        res |= (~0L) << (32-4);
++        if (res == -0x7F7E80CL)
++          return 0; /* right shift is unsigned */
++        printf(\"Right shift isn't acting as I expect it to.\\\\n\");
++        printf(\"I fear the JPEG software will not work at all.\\\\n\\\\n\");
++        return 0; /* try it with unsigned anyway */
++      }
++      int main (void) {
++        exit(is_shifting_signed(-0x7F7E80B1L));
++      }
++  '''
++  cdata.set('RIGHT_SHIFT_IS_UNSIGNED', cc.run(code).returncode() == 0)
++else
++  cdata.set('RIGHT_SHIFT_IS_UNSIGNED', false)
++endif
++
++p = run_command(python, '-c', 'import datetime; print(datetime.datetime.now().strftime("%Y%m%d"))', check: true)
++cdata.set('BUILD', p.stdout().strip())
++
++if cc.get_id() == 'msvc'
++  cdata.set('THREAD_LOCAL', '__declspec(thread)')
++else
++  cdata.set('THREAD_LOCAL', '__thread')
++endif
++
++if get_option('force_inline')
++  if cc.get_id() == 'msvc'
++    cdata.set('INLINE', '__forceinline')
++  else
++    cdata.set('INLINE', 'inline __attribute__((always_inline))')
++  endif
++else
++  cdata.set('INLINE', 'inline')
++endif
++
++if host_system == 'windows'
++  add_project_arguments('-DDLLDEFINE', language: 'c')
++endif
++
++incdir = include_directories('.')
++
++subdir('simd')
++cdata.set('WITH_SIMD', have_simd)
++if not have_simd
++  simd = static_library('simd', 'jsimd_none.c')
++endif
++
++jconfig_h_in = host_system == 'windows' ? 'win/jconfig.h.in' : 'jconfig.h.in'
++jconfig_h = configure_file(input: jconfig_h_in,
++  output: 'jconfig.h',
++  format: 'cmake@',
++  configuration: cdata)
++
++configure_file(input: 'jconfigint.h.in',
++  output: 'jconfigint.h',
++  format: 'cmake@',
++  configuration: cdata)
++
++configure_file(input: 'jversion.h.in',
++  output: 'jversion.h',
++  format: 'cmake@',
++  configuration: cdata)
++
++install_headers('jmorecfg.h', 'jerror.h', 'jpeglib.h', jconfig_h)
++
++sources = [
++  'jcapimin.c', 'jcapistd.c', 'jccoefct.c', 'jccolor.c', 'jcdctmgr.c', 'jchuff.c',
++  'jcicc.c', 'jcinit.c', 'jcmainct.c', 'jcmarker.c', 'jcmaster.c', 'jcomapi.c', 'jcparam.c',
++  'jcphuff.c', 'jcprepct.c', 'jcsample.c', 'jctrans.c', 'jdapimin.c', 'jdapistd.c', 'jdatadst.c',
++  'jdatasrc.c', 'jdcoefct.c', 'jdcolor.c', 'jddctmgr.c', 'jdhuff.c', 'jdicc.c', 'jdinput.c',
++  'jdmainct.c', 'jdmarker.c', 'jdmaster.c', 'jdmerge.c', 'jdphuff.c', 'jdpostct.c', 'jdsample.c',
++  'jdtrans.c', 'jerror.c', 'jfdctflt.c', 'jfdctfst.c', 'jfdctint.c', 'jidctflt.c', 'jidctfst.c',
++  'jidctint.c', 'jidctred.c', 'jquant1.c', 'jquant2.c', 'jutils.c', 'jmemmgr.c', 'jmemnobs.c',
++  'jaricom.c', 'jcarith.c', 'jdarith.c',
++]
++
++jpeg = library('jpeg', sources,
++  link_with: simd,
++  soversion: so_version,
++  vs_module_defs: vs_defs,
++  install: true,
++)
++
++pkg.generate(jpeg, name: 'libjpeg')
++
++jpeg_dep = declare_dependency(
++  include_directories: incdir,
++  link_with: jpeg
++)
++
++meson.override_dependency('libjpeg', jpeg_dep)
+diff --git a/meson_options.txt b/meson_options.txt
+new file mode 100644
+index 0000000..3d36483
+--- /dev/null
++++ b/meson_options.txt
+@@ -0,0 +1,2 @@
++option('force_inline', type: 'boolean', value: true)
++option('simd', type: 'feature', value: 'auto')
+diff --git a/simd/meson.build b/simd/meson.build
+new file mode 100644
+index 0000000..69467f2
+--- /dev/null
++++ b/simd/meson.build
+@@ -0,0 +1,90 @@
++simd_src_x86_64 = [
++  'x86_64/jccolor-avx2.asm', 'x86_64/jccolor-sse2.asm',
++  'x86_64/jcgray-avx2.asm', 'x86_64/jcgray-sse2.asm',
++  'x86_64/jchuff-sse2.asm', 'x86_64/jcphuff-sse2.asm',
++  'x86_64/jcsample-avx2.asm', 'x86_64/jcsample-sse2.asm',
++  'x86_64/jdcolor-avx2.asm', 'x86_64/jdcolor-sse2.asm',
++  'x86_64/jdmerge-avx2.asm', 'x86_64/jdmerge-sse2.asm',
++  'x86_64/jdsample-avx2.asm', 'x86_64/jdsample-sse2.asm',
++  'x86_64/jfdctflt-sse.asm', 'x86_64/jfdctfst-sse2.asm',
++  'x86_64/jfdctint-avx2.asm', 'x86_64/jfdctint-sse2.asm',
++  'x86_64/jidctflt-sse2.asm', 'x86_64/jidctfst-sse2.asm',
++  'x86_64/jidctint-avx2.asm', 'x86_64/jidctint-sse2.asm',
++  'x86_64/jidctred-sse2.asm', 'x86_64/jquantf-sse2.asm',
++  'x86_64/jquanti-avx2.asm', 'x86_64/jquanti-sse2.asm',
++  'x86_64/jsimdcpu.asm',
++]
++
++simd_src_i386 = [
++  'i386/jccolor-avx2.asm', 'i386/jccolor-mmx.asm', 'i386/jccolor-sse2.asm',
++  'i386/jcgray-avx2.asm', 'i386/jcgray-mmx.asm', 'i386/jcgray-sse2.asm',
++  'i386/jchuff-sse2.asm', 'i386/jcphuff-sse2.asm', 'i386/jcsample-avx2.asm',
++  'i386/jcsample-mmx.asm', 'i386/jcsample-sse2.asm', 'i386/jdcolor-avx2.asm',
++  'i386/jdcolor-mmx.asm', 'i386/jdcolor-sse2.asm', 'i386/jdmerge-avx2.asm',
++  'i386/jdmerge-mmx.asm', 'i386/jdmerge-sse2.asm', 'i386/jdsample-avx2.asm',
++  'i386/jdsample-mmx.asm', 'i386/jdsample-sse2.asm', 'i386/jfdctflt-3dn.asm',
++  'i386/jfdctflt-sse.asm', 'i386/jfdctfst-mmx.asm', 'i386/jfdctfst-sse2.asm',
++  'i386/jfdctint-avx2.asm', 'i386/jfdctint-mmx.asm', 'i386/jfdctint-sse2.asm',
++  'i386/jidctflt-3dn.asm', 'i386/jidctflt-sse2.asm', 'i386/jidctflt-sse.asm',
++  'i386/jidctfst-mmx.asm', 'i386/jidctfst-sse2.asm', 'i386/jidctint-avx2.asm',
++  'i386/jidctint-mmx.asm', 'i386/jidctint-sse2.asm', 'i386/jidctred-mmx.asm',
++  'i386/jidctred-sse2.asm', 'i386/jquant-3dn.asm', 'i386/jquantf-sse2.asm',
++  'i386/jquanti-avx2.asm', 'i386/jquanti-sse2.asm', 'i386/jquant-mmx.asm',
++  'i386/jquant-sse.asm', 'i386/jsimdcpu.asm',
++]
++
++have_simd = false
++
++simd_opt = get_option('simd')
++if simd_opt.disabled()
++  subdir_done()
++endif
++
++if host_cpu in ['x86', 'x86_64']
++  nasm = find_program('nasm', required: simd_opt)
++  if not nasm.found()
++    subdir_done()
++  endif
++
++  x64 = host_cpu == 'x86_64'
++  dir = x64 ? 'x86_64' : 'i386'
++
++  args = ['-I@CURRENT_SOURCE_DIR@' / 'nasm', '-I@CURRENT_SOURCE_DIR@' / dir]
++
++  suf = x64 ? '64' : '32'
++  if host_system == 'windows'
++    args += ['-DWIN' + suf, '-f', 'win' + suf]
++  elif host_system == 'darwin'
++    args += ['-DMACHO', '-f', 'macho' + suf]
++  else
++    args += ['-DELF', '-f', 'elf' + suf]
++  endif
++
++  if get_option('debug')
++    args += '-g'
++  endif
++
++  if x64
++    args += '-D__x86_64__'
++  endif
++
++  if host_system != 'windows'
++    args += '-DPIC'
++  endif
++
++  args += ['-MD', '-MQ', '@OUTPUT@', '-MF', '@DEPFILE@', '-o', '@OUTPUT@', '@INPUT@']
++
++  gen = generator(nasm,
++    arguments: args,
++    depfile: '@BASENAME@.dep',
++    output: '@BASENAME@.obj',
++  )
++
++  simd_src = gen.process(x64 ? simd_src_x86_64 : simd_src_i386)
++
++  have_simd = true
++  simd = static_library('simd', dir / 'jsimd.c',
++    simd_src, include_directories: incdir)
++elif simd_opt.enabled()
++  error('SIMD enabled, but CPU family not supported')
++endif
+-- 
+2.34.1
+
