@@ -1,3 +1,27 @@
+libjpeg-turbo (1:2.1.5-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+  [ zhaixiaojuan ]
+  * Fix test failure for loong64
+
+ -- xiao sheng wen <atzlinux@debian.org>  Sat, 22 Feb 2025 12:18:15 +0800
+
+libjpeg-turbo (1:2.1.5-3) unstable; urgency=medium
+
+  [ Pino Toscano ]
+  * Enable Java binding only where Java is available.
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster (oldstable).
+
+  [ Mike Gabriel ]
+  * debian/control:
+    + White-space fix in B-D field + trailing comma.
+    + Bump Standards-Version to 4.7.0. No changes needed.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Thu, 25 Apr 2024 16:17:41 +0200
+
 libjpeg-turbo (1:2.1.5-2) unstable; urgency=medium
 
   * debian/patches:

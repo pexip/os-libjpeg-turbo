@@ -3,14 +3,14 @@ Priority: optional
 Section: graphics
 Maintainer: Ondřej Surý <ondrej@debian.org>
 Uploaders: Mike Gabriel <sunweaver@debian.org>
-Build-Depends: cmake (>= 2.8.12),
+Build-Depends: cmake,
                debhelper-compat (= 13),
-               default-jdk,
+               default-jdk [!hppa !hurd-any],
                help2man,
                javahelper,
-	       nasm
+               nasm,
 Rules-Requires-Root: no
-Standards-Version: 4.6.2
+Standards-Version: 4.7.0
 Homepage: https://www.libjpeg-turbo.org/
 Vcs-Git: https://salsa.debian.org/debian/libjpeg-turbo.git
 Vcs-Browser: https://salsa.debian.org/debian/libjpeg-turbo/
