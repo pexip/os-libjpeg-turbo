@@ -11,7 +11,7 @@ include /usr/share/dpkg/default.mk
 ifneq (,$(filter $(DEB_HOST_ARCH), m68k))
   FLOAT_STORE=-ffloat-store
 endif
-ifneq (,$(filter $(DEB_HOST_ARCH), ia64 riscv64 s390x))
+ifneq (,$(filter $(DEB_HOST_ARCH), ia64 loong64 riscv64 s390x))
   FLOATTEST=-DFLOATTEST=fp-contract
 endif
 
@@ -42,12 +42,19 @@ else
   DISABLE_SIMD=-DWITH_SIMD=0
 endif
 
+JAVA_ARCHS = alpha amd64 arm64 armel armhf i386 ia64 loong64 m68k mips64el powerpc ppc64 ppc64el riscv64 s390x sh4 sparc64 x32
+
+ifneq (,$(filter $(DEB_HOST_ARCH), $(JAVA_ARCHS)))
+  DISABLE_JAVA=-DWITH_JAVA=1
+else
+  DISABLE_JAVA=-DWITH_JAVA=0
+endif
+
 %:
 	dh $@ --with javahelper
 
 override_dh_auto_configure:
-	dh_auto_configure -- $(DISABLE_SIMD) $(FLOATTEST) \
-	                     -DWITH_JAVA=1 \
+	dh_auto_configure -- $(DISABLE_SIMD) $(FLOATTEST) $(DISABLE_JAVA) \
 	                     -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
 	                     -DCMAKE_INSTALL_MANDIR=/usr/share/man/
 	                     $(NULL)
