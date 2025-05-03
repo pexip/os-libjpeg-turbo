@@ -5,7 +5,7 @@ Maintainer: Ondřej Surý <ondrej@debian.org>
 Uploaders: Mike Gabriel <sunweaver@debian.org>
 Build-Depends: cmake,
                debhelper-compat (= 13),
-               default-jdk [!hppa !hurd-any],
+               default-jdk [!hppa !hurd-any !powerpc],
                help2man,
                javahelper,
                nasm,
