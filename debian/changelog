@@ -1,3 +1,20 @@
+libjpeg-turbo (1:2.1.5-4) unstable; urgency=medium
+
+  [ Sean McGovern ]
+  * Remove powerpc from JAVA_ARCHS as it is currently broken.
+
+  [ Jeremy Bícha ]
+  * Strip -Wl,-Bsymbolic-functions out of LDFLAGS
+    so that hpcups and pxljr can override jinit_color_converter
+    (Closes: #1089027) (LP: #777670).
+
+  [ Mike Gabriel ]
+  * debian/source/lintian-overrides:
+    + Drop various very-long-line-length-in-source-file (for non-text files).
+      Not needed with recent lintian anymore.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Sat, 03 May 2025 16:07:15 +0200
+
 libjpeg-turbo (1:2.1.5-3.1+pexip25u2) pexip-trixie; urgency=medium
 
   * Trixie build for product distribution

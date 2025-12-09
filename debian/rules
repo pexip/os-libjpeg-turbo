@@ -17,7 +17,8 @@ endif
 
 # To enable all, uncomment following line
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic $(FLOAT_STORE)
+export DEB_LDFLAGS_MAINT_STRIP = -Wl,-Bsymbolic-functions
+export DEB_CFLAGS_MAINT_APPEND = -Wall -pedantic $(FLOAT_STORE)
 
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
@@ -42,7 +43,7 @@ else
   DISABLE_SIMD=-DWITH_SIMD=0
 endif
 
-JAVA_ARCHS = alpha amd64 arm64 armel armhf i386 ia64 loong64 m68k mips64el powerpc ppc64 ppc64el riscv64 s390x sh4 sparc64 x32
+JAVA_ARCHS = alpha amd64 arm64 armel armhf i386 ia64 loong64 m68k mips64el ppc64 ppc64el riscv64 s390x sh4 sparc64 x32
 
 ifneq (,$(filter $(DEB_HOST_ARCH), $(JAVA_ARCHS)))
   DISABLE_JAVA=-DWITH_JAVA=1
